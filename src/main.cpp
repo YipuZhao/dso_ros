@@ -49,10 +49,39 @@
 std::string calib = "";
 std::string vignetteFile = "";
 std::string gammaFile = "";
+std::string rtpath = "";
 std::string saveFile = "";
 bool useSampleOutput=false;
 
 using namespace dso;
+
+
+// changed by Yipu
+// try multiple config to obtain the cost-efficiency curve
+void settingsDefault(int preset)
+{
+    printf("\n=============== PRESET Settings: ===============\n");
+    printf("DEFAULT settings:\n"
+           "- %s real-time enforcing\n"
+           "- %d active points\n"
+           "- 5-7 active frames\n"
+           "- 1-6 LM iteration each KF\n"
+           "- original image resolution\n",
+           "1x", preset);
+
+    setting_desiredImmatureDensity = int( (float)preset * 0.75 );
+    setting_desiredPointDensity = preset;
+    setting_minFrames = 5;
+    setting_maxFrames = 7;
+    setting_maxOptIterations=6;
+    setting_minOptIterations=1;
+
+    setting_logStuff = false;
+    setting_kfGlobalWeight = 1.3;
+
+    printf("==============================================\n");
+}
+
 
 void parseArgument(char* arg)
 {
@@ -85,6 +114,11 @@ void parseArgument(char* arg)
 		return;
 	}
 
+	if(1==sscanf(arg,"preset=%d",&option))
+    {
+        settingsDefault(option);
+        return;
+    }
 
 	if(1==sscanf(arg,"nolog=%d",&option))
 	{
@@ -105,6 +139,7 @@ void parseArgument(char* arg)
 		}
 		return;
 	}
+
 	if(1==sscanf(arg,"nomt=%d",&option))
 	{
 		if(option==1)
@@ -114,12 +149,39 @@ void parseArgument(char* arg)
 		}
 		return;
 	}
+
+	if(1==sscanf(arg,"mode=%d",&option))
+    {
+        //mode = option;
+        if(option==0)
+        {
+            printf("PHOTOMETRIC MODE WITH CALIBRATION!\n");
+        }
+        if(option==1)
+        {
+            printf("PHOTOMETRIC MODE WITHOUT CALIBRATION!\n");
+            setting_photometricCalibration = 0;
+            setting_affineOptModeA = 0; //-1: fix. >=0: optimize (with prior, if > 0).
+            setting_affineOptModeB = 0; //-1: fix. >=0: optimize (with prior, if > 0).
+        }
+        if(option==2)
+        {
+            printf("PHOTOMETRIC MODE WITH PERFECT IMAGES!\n");
+            setting_photometricCalibration = 0;
+            setting_affineOptModeA = -1; //-1: fix. >=0: optimize (with prior, if > 0).
+            setting_affineOptModeB = -1; //-1: fix. >=0: optimize (with prior, if > 0).
+            setting_minGradHistAdd=3;
+        }
+        return;
+    }
+
 	if(1==sscanf(arg,"calib=%s",buf))
 	{
 		calib = buf;
 		printf("loading calibration from %s!\n", calib.c_str());
 		return;
 	}
+
 	if(1==sscanf(arg,"vignette=%s",buf))
 	{
 		vignetteFile = buf;
@@ -133,6 +195,13 @@ void parseArgument(char* arg)
 		printf("loading gammaCalib from %s!\n", gammaFile.c_str());
 		return;
 	}
+
+	if(1==sscanf(arg,"realtime=%s",buf))
+    {
+        rtpath = buf;
+        printf("REAL TIME TRACK SAVED AT %s!\n", rtpath.c_str());
+        return;
+    }
 
 	printf("could not parse argument \"%s\"!!\n", arg);
 }
@@ -186,20 +255,20 @@ int main( int argc, char** argv )
 	for(int i=1; i<argc;i++) parseArgument(argv[i]);
 
 
-	setting_desiredImmatureDensity = 1000;
-	setting_desiredPointDensity = 1200;
-	setting_minFrames = 5;
-	setting_maxFrames = 7;
-	setting_maxOptIterations=4;
-	setting_minOptIterations=1;
-	setting_logStuff = false;
-	setting_kfGlobalWeight = 1.3;
+	// setting_desiredImmatureDensity = 1000;
+	// setting_desiredPointDensity = 1200;
+	// setting_minFrames = 5;
+	// setting_maxFrames = 7;
+	// setting_maxOptIterations=4;
+	// setting_minOptIterations=1;
+	// setting_logStuff = false;
+	// setting_kfGlobalWeight = 1.3;
 
 
-	printf("MODE WITH CALIBRATION, but without exposure times!\n");
-	setting_photometricCalibration = 2;
-	setting_affineOptModeA = 0;
-	setting_affineOptModeB = 0;
+	// printf("MODE WITH CALIBRATION, but without exposure times!\n");
+	// setting_photometricCalibration = 2;
+	// setting_affineOptModeA = 0;
+	// setting_affineOptModeB = 0;
 
 
 
@@ -228,11 +297,23 @@ int main( int argc, char** argv )
     if(undistorter->photometricUndist != 0)
     	fullSystem->setGammaFunction(undistorter->photometricUndist->getG());
 
+
+    fullSystem->f_realTimeTrack.open(std::string(rtpath + "_AllFrameTrajectory.txt").c_str());
+    fullSystem->f_realTimeTrack << std::fixed;
+    fullSystem->f_realTimeTrack << "#TimeStamp Tx Ty Tz Qx Qy Qz Qw" << std::endl;
+
+
     ros::NodeHandle nh;
     ros::Subscriber imgSub = nh.subscribe("image", 1, &vidCb);
 
     ros::spin();
-    fullSystem->printResult(saveFile); 
+
+    //
+    fullSystem->f_realTimeTrack.close();
+    fullSystem->saveTimeLog(rtpath + "_Log.txt");
+    fullSystem->printResult(std::string(rtpath + "_KeyFrameTrajectory.txt").c_str());
+    //
+    // fullSystem->printResult(saveFile); 
     for(IOWrap::Output3DWrapper* ow : fullSystem->outputWrapper)
     {
         ow->join();

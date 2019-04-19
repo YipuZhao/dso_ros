@@ -17,6 +17,8 @@ Number_GF_List =  [200, 300, 400, 600, 800, 1000, 1500, 2000];
 Num_Repeating = 10 # 20 # 1 # 
 SleepTime = 3 # 10 # 25
 
+Path_DSO_Calib = '/home/yipuzhao/Codes/VSLAM/DSO/calib'
+
 #----------------------------------------------------------------------------------------------------------------------
 class bcolors:
     HEADER = '\033[95m'
@@ -45,25 +47,34 @@ for ri, num_gf in enumerate(Number_GF_List):
             SeqName = SeqNameList[sn]
             print bcolors.ALERT + "Round: " + str(iteration + 1) + "; Seq: " + SeqName
 
-            File_Calib = '../calib/TUM_' + TumTypeList[sn] + '_Mono_calib.txt'
+            File_Calib = Path_DSO_Calib + '/TUM_' + TumTypeList[sn] + '_Mono_calib.txt'
             File_Gamma = ' '
             File_Vignette = ' '
             Misc_Config = ' mode=1 nolog=1 quiet=1 nogui=1'
 
-            Path_Image   = '/mnt/DATA/Datasets/TUM_RGBD/rgbd_dataset_' + SeqName + '/rgb'
+            File_rosbag  = '/mnt/DATA/Datasets/TUM_RGBD/BagFiles/' + SeqName + '.bag'
             File_traj = Experiment_dir + '/' + SeqName
 
-            cmd_slam   = str('../build/bin/dso_dataset files=' + Path_Image + ' calib=' + File_Calib + ' gamma=' + File_Gamma + ' vignette=' + File_Vignette + ' preset='  + str(int(num_gf)) + ' realtime=' + File_traj + Misc_Config)
-            
+            cmd_slam   = str('rosrun dso_ros dso_live image:=' + '/camera/image_raw' + ' calib=' + File_Calib + ' gamma=' + File_Gamma + \
+                ' vignette=' + File_Vignette + ' preset='  + str(int(num_gf)) + ' realtime=' + File_traj + Misc_Config)
+            cmd_rosbag = 'rosbag play ' + File_rosbag # + ' -r 0.3' # + ' -u 20' 
+
             print bcolors.WARNING + "cmd_slam: \n"   + cmd_slam   + bcolors.ENDC
+            print bcolors.WARNING + "cmd_rosbag: \n" + cmd_rosbag + bcolors.ENDC
 
             print bcolors.OKGREEN + "Launching SLAM" + bcolors.ENDC
-            # proc_slam = subprocess.Popen(cmd_slam, shell=True)
-            proc_slam = subprocess.call(cmd_slam, shell=True)
+            proc_slam = subprocess.Popen(cmd_slam, shell=True)
+            # proc_slam = subprocess.call(cmd_slam, shell=True)
+            time.sleep(SleepTime)
+
+            print bcolors.OKGREEN + "Launching rosbag" + bcolors.ENDC
+            proc_bag = subprocess.call(cmd_rosbag, shell=True)
 
             print bcolors.OKGREEN + "Wait for exporting results" + bcolors.ENDC
             time.sleep(SleepTime)
 
-            print bcolors.OKGREEN + "Finished playback, kill the process" + bcolors.ENDC
-            subprocess.call('pkill dso_dataset', shell=True)
+            print bcolors.OKGREEN + "Finished rosbag playback, kill the process" + bcolors.ENDC
+            subprocess.call('rosnode kill dso_live', shell=True)
+            time.sleep(SleepTime)
+            subprocess.call('pkill dso_live', shell=True)
 
