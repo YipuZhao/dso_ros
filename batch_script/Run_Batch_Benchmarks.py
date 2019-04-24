@@ -22,10 +22,10 @@ import signal
 # '/mnt/DATA/Datasets/Kitti_Dataset/BagFiles/', '/mnt/DATA/Datasets/Kitti_Dataset/BagFiles/', '/mnt/DATA/Datasets/Hololens/BagFiles/', \
 # '/mnt/DATA/Datasets/New_College/BagFiles/', '/mnt/DATA/Datasets/TUM_RGBD/BagFiles/'
 # ];
-SeqNameList = ['Seq00_left', 'Seq04_left', '2019-01-25-17-30', 'left_cam'];
-CalibList   = ['Kitti_00_02', 'Kitti_04_12', 'Hololens', 'NewCollege'];
-CamTopicList = ['/camera/image_raw', '/camera/image_raw', '/left_cam/image_raw', '/cam0/image_raw']
-SeqDirList = ['/mnt/DATA/Datasets/Kitti_Dataset/BagFiles/', '/mnt/DATA/Datasets/Kitti_Dataset/BagFiles/', '/mnt/DATA/Datasets/Hololens/BagFiles/', '/mnt/DATA/Datasets/New_College/BagFiles/'];
+SeqNameList = ['freiburg2_desk_with_person'];
+CalibList   = ['TUM_freiburg2'];
+CamTopicList = ['/camera/image_raw']
+SeqDirList = ['/mnt/DATA/Datasets/TUM_RGBD/BagFiles/'];
 
 Result_root = '/mnt/DATA/tmp/DSO_Mono_Baseline_Slomo/'
 
