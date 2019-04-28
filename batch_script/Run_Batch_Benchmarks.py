@@ -29,6 +29,7 @@ CamTopicList = ['/camera/image_raw', '/camera/image_raw', '/left_cam/image_raw']
 SeqDirList = ['/mnt/DATA/Datasets/ICL-NUIM_dataset/BagFiles/', '/mnt/DATA/Datasets/ICL-NUIM_dataset/BagFiles/', \
 '/mnt/DATA/Datasets/Hololens/BagFiles/'];
 
+
 Result_root = '/mnt/DATA/tmp/DSO_Mono_Baseline_Slomo/'
 
 Number_GF_List =  [800] # [200, 300, 400, 600, 800, 1000, 1500, 2000];
@@ -69,7 +70,7 @@ for ri, num_gf in enumerate(Number_GF_List):
             File_Calib = Path_DSO_Calib + '/' + CalibList[sn] + '_Mono_calib.txt'
             File_Gamma = ' '
             File_Vignette = ' '
-            Misc_Config = ' mode=1 nolog=1 quiet=1 nogui=1'
+            Misc_Config = ' mode=1 nolog=1 quiet=1 nogui=0'
 
             File_rosbag  = SeqDirList[sn] + SeqName + '.bag'
             File_traj = Experiment_dir + '/' + SeqName
