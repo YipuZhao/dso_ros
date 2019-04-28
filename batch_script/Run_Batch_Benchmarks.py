@@ -14,7 +14,7 @@ import signal
 # 'Kitti_00_02', 'Kitti_04_12', 'Hololens', 'NewCollege', 'TUM_freiburg2'];
 # CamTopicList = ['/cam0/image_raw', '/cam0/image_raw', \
 # '/cam0/image_raw', '/cam0/image_raw', '/cam0/image_raw', \
-# '/camera/image_raw', '/camera/image_raw', '/left_cam/image_raw', \
+# '/left/image_raw', '/left/image_raw', '/left_cam/image_raw', \
 # '/cam0/image_raw', '/camera/image_raw'
 # ]
 # SeqDirList = ['/mnt/DATA/Datasets/EuRoC_dataset/BagFiles/', '/mnt/DATA/Datasets/EuRoC_dataset/BagFiles/', \
@@ -23,10 +23,11 @@ import signal
 # '/mnt/DATA/Datasets/New_College/BagFiles/', '/mnt/DATA/Datasets/TUM_RGBD/BagFiles/'
 # ];
 #
-SeqNameList = ['living_room_traj0n', 'office_room_traj3n', '2019-01-25-15-10'];
-CalibList   = ['NUIM', 'NUIM', 'Hololens'];
-CamTopicList = ['/camera/image_raw', '/camera/image_raw', '/left_cam/image_raw']
-SeqDirList = ['/mnt/DATA/Datasets/ICL-NUIM_dataset/BagFiles/', '/mnt/DATA/Datasets/ICL-NUIM_dataset/BagFiles/', \
+SeqNameList = ['Seq02_left', 'Seq04_left', 'living_room_traj0n', 'office_room_traj3n', '2019-01-25-15-10'];
+CalibList   = ['Kitti_00_02', 'Kitti_04_12', 'NUIM', 'NUIM', 'Hololens'];
+CamTopicList = ['/left/image_raw', '/left/image_raw', '/camera/image_raw', '/camera/image_raw', '/left_cam/image_raw']
+SeqDirList = ['/mnt/DATA/Datasets/Kitti_Dataset/BagFiles/', '/mnt/DATA/Datasets/Kitti_Dataset/BagFiles/', \
+'/mnt/DATA/Datasets/ICL-NUIM_dataset/BagFiles/', '/mnt/DATA/Datasets/ICL-NUIM_dataset/BagFiles/', \
 '/mnt/DATA/Datasets/Hololens/BagFiles/'];
 
 
@@ -70,7 +71,7 @@ for ri, num_gf in enumerate(Number_GF_List):
             File_Calib = Path_DSO_Calib + '/' + CalibList[sn] + '_Mono_calib.txt'
             File_Gamma = ' '
             File_Vignette = ' '
-            Misc_Config = ' mode=1 nolog=1 quiet=1 nogui=0'
+            Misc_Config = ' mode=1 nolog=1 quiet=1 nogui=1'
 
             File_rosbag  = SeqDirList[sn] + SeqName + '.bag'
             File_traj = Experiment_dir + '/' + SeqName
