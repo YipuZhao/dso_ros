@@ -31,8 +31,12 @@ endif()
 message("\n\n---- FOUND OpenCV Headers at\n\"${OpenCV_INCLUDE_DIRS}\"")
 message("---- FOUND OpenCV Libs at\n\"${OpenCV_LIBS}\"")
 
-find_package(Eigen3 REQUIRED)
+# find_package(Eigen3 REQUIRED)
+set( EIGEN3_INCLUDE_DIR /usr/include/eigen3 )
+MESSAGE("EIGEN include dir: " ${EIGEN3_INCLUDE_DIR})
+
 find_package(Boost COMPONENTS system thread)
+
 find_library(DSO_LIBRARY dso ${DSO_PATH}/build/lib)
 
 set(GL_LIBRARIES
